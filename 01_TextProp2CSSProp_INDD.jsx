@@ -53,40 +53,6 @@ MAIN: {
     var myTypoMeasUni = myDoc.viewPreferences.typographicMeasurementUnits; //環境設定 -> 単位と増減値 -> 組版
     var myTextSizeMeasUni = myDoc.viewPreferences.textSizeMeasurementUnits; //環境設定 -> 単位と増減値 -> テキストサイズ
 
-    //▼環境設定 -> 単位と増減値 -> 組版 に設定されている単位を変数に格納
-    switch (myTypoMeasUni) {
-    case 2054188905:
-        myTypoMeasUni = 2054188905; //ポイント
-        break;
-    case 1516790048:
-        myTypoMeasUni = 1516790048; //歯
-        break;
-    case 1514238068:
-        myTypoMeasUni = 1514238068; //アメリカ式ポイント
-        break;
-    case 2051691808:
-        myTypoMeasUni = 1514238068; //U
-        break;
-    case 2051170665:
-        myTypoMeasUni = 2051170665; //Bai
-        break;
-    case 2051893612:
-        myTypoMeasUni = 2051170665; //Mils
-        break;
-    }
-
-    //▼環境設定 -> 単位と増減値 -> テキストサイズ に設定されている単位を変数に格納
-    switch (myTextSizeMeasUni) {
-    case 2054188905:
-        myTextSizeMeasUni = 2054188905; //ポイント
-        break;
-    case 2054255973:
-        myTextSizeMeasUni = 2054255973; //級
-        break;
-    case 1514238068:
-        myTextSizeMeasUni = 1514238068; //アメリカ式ポイント
-    }
-
     /*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     InDesign2HTML
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
@@ -158,7 +124,7 @@ MAIN: {
         //alert(myJustification);//確認用
     }
     for (var k = 0, myCSSArrayLen = myCSSArray.length; k < myCSSArrayLen; k++) {
-        var myCSSResult = myCSSArray[k] + "{" + mySizeArray[k] + myFontFamilyArray[k] + myFontWeightArray[k] + myColorArray[k] + myLeadingArray[k] + myJustificationArray[k] + "margin: 0;" + "}"; //CSS生成
+        var myCSSResult = myCSSArray[k] + "{" + mySizeArray[k] + myFontFamilyArray[k] + myFontWeightArray[k] + myColorArray[k] + myLeadingArray[k] + myJustificationArray[k] + "}"; //CSS生成
         myPropArray.push(myCSSResult); //配列に追加
         //alert(myPropArray);//確認用
     }
@@ -168,7 +134,7 @@ MAIN: {
     var myPropArray = myPropArray.toString(); //CSS用配列を文字列に変換　※変数上書き
     var myPropArray = myPropArray.replace(/,/g, ""); //文字列化したCSVのカンマを削除
 
-    var MyHTMLRessult = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>Document</title><style>' + myPropArray + '</style></head><body>' + myHTMLArray + '</body></html>'; //HTML生成
+    var MyHTMLRessult = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>Document</title><style>' + '*{margin:0;padding:0;}' + myPropArray + '</style></head><body>' + myHTMLArray + '</body></html>'; //HTML生成
 
     //▼単位を元に戻す
     myDoc.viewPreferences.typographicMeasurementUnits = myTypoMeasUni; //環境設定 -> 単位と増減値 -> 組版 をポイントに変更
