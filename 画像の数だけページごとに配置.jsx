@@ -1,16 +1,16 @@
 ﻿//▼サイズ指定ウィンドウ表示
 var win = app.dialogs.add({
-    name: 'ドキュメントサイズを選択'
+    name: "ドキュメントサイズを選択"
 });
 var dlgClmn = win.dialogColumns.add();
 var btnGrp = dlgClmn.radiobuttonGroups.add();
 var a4Btn = btnGrp.radiobuttonControls.add({
-    staticLabel: 'A4 (210 x 297mm)',
+    staticLabel: "A4 (210 x 297mm)",
     minWidth: 150,
     checkedState: true
 });
 var a3Btn = btnGrp.radiobuttonControls.add({
-    staticLabel: 'A3 (297 x 420mm)',
+    staticLabel: "A3 (297 x 420mm)",
     minWidth: 150
 });
 var btnFlg = win.show();
@@ -54,19 +54,41 @@ try {
     doc.documentPreferences.pagesPerDocument = myFilesLen; //ファイル数分ページを作成
     var myPage = doc.pages; //ドキュメント上のページ
 
-//▼プログレッシブバー表示
-var myProDialog = new Window('palette', '処理中...', [800, 480, 1200, 560]);
-myProDialog.center();
-myProDialog.myProgressBar = myProDialog.add("progressbar", [10, 30, 394, 45], 0, 100);
-myProDialog.show();
+    //▼プログレッシブバー表示
+    var myProDialog = new Window("palette", "処理中...", [800, 480, 1200, 560]);
+    myProDialog.center();
+    myProDialog.myProgressBar = myProDialog.add("progressbar", [10, 30, 394, 45], 0, 100);
+    myProDialog.show();
 
     //▼ページ数分、グラフィックフレーム作成
     for (var i = 0, myPageLen = myPage.length; i < myPageLen; i++) {
+        //▼プログレッシブバーの値
+        var processLength = myFilesLen; //総処理画像数
+        myProDialog.myProgressBar.value += 100 / processLength;
+
         var myRect = myPage[i].rectangles.add(); //長方形を追加
         myRect.contentType = 1735553140; //グラフィックフレーム
-        myRect.visibleBounds = ['5mm', '5mm', docHeight - 5, docWidth - 5];
+        myRect.visibleBounds = ["5mm", "5mm", docHeight - 5, docWidth - 5];
         var myImg = myRect.place(myFiles[i]);
         myRect.fit(FitOptions.proportionally); //内容をフレーム内に収める
+
+        //▼ページ数分、画像配置
+        var pageObj = myPage[i].pageItems[0].graphics[0]; //ページ（フレーム）内画像
+        var imgX1 = pageObj.visibleBounds[1]; //X1座標
+        var imgY1 = pageObj.visibleBounds[0]; //Y1座標
+        var imgX2 = pageObj.visibleBounds[3]; //X2座標
+        var imgY2 = pageObj.visibleBounds[2]; //Y2座標
+
+        var imgWidth = imgX2 - imgX1; //画像の幅を取得
+        var imgHeighth = imgY2 - imgY1; //画像の高さを取得
+
+        //▼長辺が縦になるよう画像を回転させる
+        if (imgWidth > imgHeighth) {
+            pageObj.rotationAngle = 90; //回転
+            pageObj.fit(FitOptions.proportionally); //内容をフレーム内に収める
+        } else {
+            pageObj.fit(FitOptions.proportionally); //内容をフレーム内に収め
+        }
     }
 } catch (e) {
     alert("何かしらのエラーが発生しました。\r\n処理するフォルダを選択していない可能性があります。\r\n処理を中断します。");
@@ -74,40 +96,18 @@ myProDialog.show();
     exit();
 }
 
+//▼ファイル名にする日付を取得
+var myDate = new Date();
+var myYear = myDate.getFullYear();
+var myMonth = myDate.getMonth() + 1;
+var myDay = myDate.getDate();
+var myHours = myDate.getHours();
+var myMinutes = myDate.getMinutes();
+var mySeconds = myDate.getSeconds();
+var nowTime = myYear + "年" + myMonth + "月" + myDay + "日" + myHours + "時" + myMinutes + "分" + mySeconds + "秒";
 
+doc.save(File("~/Desktop/" + nowTime + ".indd")); //ドキュメントを保存
 
-//▼ページ数分、画像配置
-for (var j = 0; j < myPageLen; j++) {
-            //▼プログレッシブバーの値
-        var processLength = myFilesLen; //総処理画像数
-        myProDialog.myProgressBar.value += 100 / processLength;
-        
-    var pageObj = myPage[j].pageItems[0].graphics[0]; //ページ（フレーム）内画像
-    var imgX1 = pageObj.visibleBounds[1]; //X1座標
-    var imgY1 = pageObj.visibleBounds[0]; //Y1座標
-    var imgX2 = pageObj.visibleBounds[3]; //X2座標
-    var imgY2 = pageObj.visibleBounds[2]; //Y2座標
+myProDialog.close(); //プログレスバーを閉じる
 
-    var imgWidth = imgX2 - imgX1; //画像の幅を取得
-    var imgHeighth = imgY2 - imgY1; //画像の高さを取得
-
-    //▼長辺が縦になるよう画像を回転させる
-    try {
-        if (imgWidth > imgHeighth) {
-            pageObj.rotationAngle = 90; //回転
-            pageObj.fit(FitOptions.proportionally); //内容をフレーム内に収める
-        } else {
-            pageObj.fit(FitOptions.proportionally); //内容をフレーム内に収め
-        }
-
-        
-    } catch (e) {
-        alert("何かしらのエラーが発生しました。\r\n処理を中断します。\r\n「この値を入力すると、 1つ以上のオブジェクトがペーストボードから失われる可能性があります。」のエラーかも。。。？");
-        exit;
-    }
-
-        
-}
-//▼プログレスバーを閉じる
-myProDialog.close();
-alert("処理が終わりました。");
+alert("処理が終わりました。\r\nデスクトップに保存済みです。");
