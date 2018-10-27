@@ -12,11 +12,12 @@
     2018/7/3　大澤作成
 */
 
-var doc = app.activeDocument; //アクティブドキュメント
-var items = doc.allPageItems; //ページアイテム
-var grpItem = doc.groups; //グループアイテム
-var txtFrames = doc.textFrames; //テキストフレーム
-var layer = doc.layers; //レイヤー
+var doc = app.activeDocument, //アクティブドキュメント
+    items = doc.allPageItems, //ページアイテム
+    grpItem = doc.groups, //グループアイテム
+    txtFrames = doc.textFrames, //テキストフレーム
+    layer = doc.layers; //レイヤー
+page = doc.pages[0]; //ページ
 
 //▼テキストフレーム内アンカーオブジェクトの検索設定
 app.findGrepPreferences = NothingEnum.nothing; //検索文字列初期化
@@ -61,7 +62,7 @@ try {
     }
 } catch (e) { //エラー処理 → アンカーオブジェクト、空欄のテキストフレームがあった場合ロックをかける
     for (var l = 0, txtFramesLen = txtFrames.length; l < txtFramesLen; l++) {
-        if (txtFrames[l].contents.length == 0 || txtFrames[l].findGrep().length > 0) {
+        if (txtFrames[l].findGrep().length > 0) {
             txtFrames[l].locked = true; //ロックをかける
         }
     }
@@ -76,12 +77,9 @@ try {
     }
 }
 
-//▼最後に全てのアイテムロックを解除
-var items = doc.allPageItems; //ページアイテム（再度宣言しないとエラーになる。上部でのグローバル宣言での不可）
-for (var j = 0, itemsLen = items.length; j < itemsLen; j++) {
-    if (items[j].locked == true) {
-        items[j].locked = false;
-    }
+//▼テキストフレームにロックをかける
+for (var o = 0; o < page.textFrames.length; o++) {
+    page.textFrames[o].locked = true;;
 }
 
-alert("処理が終わりました。\r\nテキストフレーム内のアンカーオブジェクトのグループは解除できません。");
+alert("処理が終わりました。\r\nグラフィックフレーム以外のオブジェクトにロックをかけました。\r\nテキストフレーム内のアンカーオブジェクトのグループは解除できません。");
